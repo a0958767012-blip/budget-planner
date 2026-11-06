@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>錢去哪了？月預算分配器｜50/30/20</title>
+<meta name="description" content="輸入月收入，用 50/30/20 法則分配預算、追蹤實際花費，並用終值（FV）公式預測儲蓄成長。">
+<meta name="theme-color" content="#F6F7EC">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F7EC;--glow:#DDE3CB;--panel:#FCFDF6;--ink:#40534C;--mute:#5B6B60;--line:#D3D9C0;--brand:#40534C;--onbrand:#F6F7EC;--brand2:#E8EDD9;--accent:#7A8864;--need:#40534C;--want:#C9A27E;--save:#7A8864;--un:#D3D9C0;--bad:#B5523B;--shadow:rgba(64,83,76,.2);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#232C28;--glow:#2F3C37;--panel:#2D3833;--ink:#F6F7EC;--mute:#B9C2B3;--line:#455248;--brand:#A9B58F;--onbrand:#232C28;--brand2:#3A4840;--accent:#8FA08A;--need:#8FA8A0;--want:#D9B995;--save:#B5C195;--un:#455248;--bad:#E58A72;--shadow:rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#232C28;--glow:#2F3C37;--panel:#2D3833;--ink:#F6F7EC;--mute:#B9C2B3;--line:#455248;--brand:#A9B58F;--onbrand:#232C28;--brand2:#3A4840;--accent:#8FA08A;--need:#8FA8A0;--want:#D9B995;--save:#B5C195;--un:#455248;--bad:#E58A72;--shadow:rgba(0,0,0,.35);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 420px at 8% -6%,var(--glow),transparent 62%),var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.6}
+header,main{max-width:1100px;margin:0 auto;padding-left:20px;padding-right:20px}
+header{padding-top:26px}
+h1{font-size:clamp(26px,4.4vw,38px);margin:0 0 6px;color:var(--ink);display:inline-block;border-bottom:5px solid var(--accent);padding-bottom:2px}
+header p{margin:0;color:var(--mute);max-width:62ch}
+main{padding-top:16px;padding-bottom:48px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 1px 2px var(--shadow),0 10px 28px -16px var(--shadow)}
+.wide{grid-column:1/-1}
+h2{font-size:16px;margin:0 0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+button,select,input{font:inherit;color:var(--ink)}
+.chip{cursor:pointer;border:1px solid var(--line);background:transparent;padding:6px 12px;border-radius:999px;font-size:14px}
+.chip{color:var(--ink)}.chip:hover{background:var(--brand2)}.chip.on{background:var(--brand);border-color:var(--brand);color:var(--onbrand);font-weight:700}
+.chip:focus-visible,input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lab{font-size:14px;color:var(--mute);display:flex;justify-content:space-between;margin:10px 0 4px}
+.lab b{color:var(--ink)}
+input[type=number],input[type=text],select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}input[type=number]:focus,input[type=text]:focus,select:focus{border-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--brand)}
+.donutwrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.donutwrap svg{width:170px;height:170px;flex:none}
+.legend{flex:1;min-width:170px;font-size:14px}
+.legend div{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px}
+.legend b{font-variant-numeric:tabular-nums}
+.big{font-size:clamp(26px,5vw,38px);font-weight:700;font-variant-numeric:tabular-nums}
+.mute{color:var(--mute);font-size:13px}
+.bar{position:relative;height:12px;background:var(--un);border-radius:7px;margin:4px 0 10px}
+.bar i{display:block;height:100%;border-radius:7px}
+.bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.alerts{display:grid;gap:8px;margin-top:10px}
+.al{padding:10px 12px;border-radius:10px;background:var(--brand2);font-size:14px;border-left:4px solid var(--accent)}
+.al.bad{border-left-color:var(--bad)}.al.ok{border-left-color:var(--brand)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:6px 5px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:500;font-size:13px}
+td.s{white-space:nowrap;font-size:13px}
+.over{color:var(--bad);font-weight:700}.fine{color:var(--brand);font-weight:700}
+.x{border:none;background:none;color:var(--mute);cursor:pointer;font-size:18px}
+.add{margin-top:10px;border:1.5px dashed var(--brand);background:transparent;color:var(--brand);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700}.add:hover{background:var(--brand);color:var(--onbrand)}
+ol{padding-left:20px;margin:0}li{margin:6px 0}
+.help{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.help div{background:var(--brand2);border-radius:10px;padding:12px;font-size:14px;border:1px solid var(--line)}
+.help b{display:block;margin-bottom:4px}
+.theme{float:right;border:1px solid var(--accent);background:transparent;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--ink)}.theme:hover{background:var(--brand2)}
+</style>
+</head>
+<body>
+<header>
+<button class="theme" id="theme" type="button">切換深淺色</button>
+<h1>錢去哪了？月預算分配器</h1>
+<p>輸入每月收入，把錢分成「需要、想要、儲蓄」三類，對照 50/30/20 法則，還能看到每月存下的錢長期會變多少。</p>
+</header>
+<main>
+<section class="wide">
+<h2>使用說明（第一次來請先看這裡）</h2>
+<div class="help">
+<div><b>步驟 1：選身分與法則</b>點「學生」或「上班族」帶入範例，再選分配法則。選 50/30/20 會自動把每個類別縮放到建議比例。</div>
+<div><b>步驟 2：改成你自己的數字</b>在「預算明細」輸入月收入，並修改每個項目的名稱、類型與預計金額，也可新增或刪除項目。</div>
+<div><b>步驟 3：月底填實際花費</b>把真實花費填在「實際」欄。花超過預算會顯示紅色「超支」，系統也會給你提醒。</div>
+<div><b>步驟 4：看儲蓄會長多大</b>下方「儲蓄成長預測」用終值（FV）公式，算出每月存同樣金額、複利成長後的總資產。</div>
+</div>
+<p class="mute" style="margin:12px 0 0"><b>名詞：</b>需要＝不花不行（吃、住、交通、通訊）；想要＝可以不花（娛樂、購物、飲料）；儲蓄＝先留給未來的自己。50/30/20 代表需要 50%、想要 30%、儲蓄 20%。</p>
+</section>
+
+<section>
+<h2>1. 基本設定</h2>
+<div class="mute">範例身分</div>
+<div class="chips" id="presets"></div>
+<div class="mute">分配法則</div>
+<div class="chips" id="rules"></div>
+<div class="lab"><span>每月收入（元）</span></div>
+<input type="number" id="income" min="0" step="500">
+<p class="mute" id="rulehint" style="margin-bottom:0"></p>
+</section>
+
+<section aria-live="polite">
+<h2>2. 分配總覽</h2>
+<div class="donutwrap">
+<svg viewBox="0 0 160 160" id="donut" role="img" aria-label="預算分配圓環圖"></svg>
+<div class="legend" id="legend"></div>
+</div>
+<div class="lab" style="margin-top:14px"><span>實際月底剩餘</span></div>
+<div class="big" id="remain"></div>
+<div class="mute" id="remainsub"></div>
+</section>
+
+<section class="wide">
+<h2>3. 與建議比例對照</h2>
+<div id="bars"></div>
+<div class="alerts" id="alerts" aria-live="polite"></div>
+</section>
+
+<section class="wide">
+<h2>4. 預算明細</h2>
+<div class="scroll"><table>
+<thead><tr><th>項目</th><th>類型</th><th>預計（元）</th><th>實際（元）</th><th>狀態</th><th></th></tr></thead>
+<tbody id="rows"></tbody></table></div>
+<button class="add" id="add" type="button">＋ 新增項目</button>
+</section>
+
+<section class="wide">
+<h2>5. 儲蓄成長預測（FV）</h2>
+<p class="mute" style="margin-top:0">公式：FV = PMT × [(1+r)ⁿ − 1] ÷ r。PMT 是每月儲蓄預算，r 是月利率，n 是月數。</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">
+<div>
+<div class="lab"><span>預期年化報酬率</span><b id="o-rate"></b></div><input type="range" id="rate" min="0" max="10" step="0.5">
+<div class="lab"><span>存多少年</span><b id="o-years"></b></div><input type="range" id="years" min="1" max="30" step="1">
+</div>
+<div><div class="mute">每月儲蓄（PMT）</div><div id="f-pmt" style="font-size:20px;font-weight:700"></div>
+<div class="mute" style="margin-top:8px">累計投入本金</div><div id="f-pri" style="font-size:20px;font-weight:700"></div></div>
+<div><div class="mute">期末資產（FV）</div><div class="big" id="f-fv" style="color:var(--brand)"></div>
+<div class="mute" id="f-gain"></div></div>
+</div>
+<p class="mute">本工具為試算與記帳輔助，不構成投資建議；報酬率只是假設，實際會波動。</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const TY={need:"需要",want:"想要",save:"儲蓄"},COL={need:"var(--need)",want:"var(--want)",save:"var(--save)"};
+const RULES={"50/30/20":[50,30,20],"60/20/20":[60,20,20],"70/20/10":[70,20,10],"自訂":null};
+const PRE={
+"上班族":{income:30000,cats:[["餐飲","need",8000],["房租","need",5000],["交通","need",1500],["水電通訊","need",500],["娛樂","want",4000],["購物","want",3000],["聚餐社交","want",2000],["儲蓄","save",6000]],rule:"50/30/20"},
+"學生":{income:12000,cats:[["餐飲","need",4000],["交通","need",1200],["手機通訊","need",600],["學用品","need",1400],["娛樂","want",1200],["購物","want",800],["飲料點心","want",400],["儲蓄","save",2400]],rule:"60/20/20"}};
+let S={income:30000,rule:"50/30/20",rate:3,years:10,cats:[]},pname="上班族";
+const money=n=>"NT$ "+Math.round(n).toLocaleString("zh-TW");
+const sum=(t,k)=>S.cats.filter(c=>!t||c.type===t).reduce((a,c)=>a+(+c[k]||0),0);
+function mk(p){return p.cats.map(c=>({name:c[0],type:c[1],plan:c[2],actual:0}))}
+function save(){try{localStorage.setItem("budget1",JSON.stringify(S))}catch(e){}}
+function load(){try{const v=JSON.parse(localStorage.getItem("budget1"));if(v&&v.cats)return v}catch(e){}return null}
+function applyRule(){
+ const r=RULES[S.rule];if(!r)return;
+ ["need","want","save"].forEach((t,i)=>{
+  const list=S.cats.filter(c=>c.type===t);if(!list.length)return;
+  const target=S.income*r[i]/100,cur=list.reduce((a,c)=>a+(+c.plan||0),0);
+  list.forEach(c=>c.plan=Math.round((cur>0?c.plan/cur:1/list.length)*target/100)*100);
+ });
+}
+function setPreset(n){pname=n;const p=PRE[n];S.income=p.income;S.rule=p.rule;S.cats=mk(p);applyRule();buildAll()}
+function chips(){
+ $("presets").innerHTML="";Object.keys(PRE).forEach(k=>{const b=document.createElement("button");b.type="button";b.className="chip"+(k===pname?" on":"");b.textContent=k;b.onclick=()=>setPreset(k);$("presets").appendChild(b)});
+ $("rules").innerHTML="";Object.keys(RULES).forEach(k=>{const b=document.createElement("button");b.type="button";b.className="chip"+(k===S.rule?" on":"");b.textContent=k==="自訂"?"自訂（不調整）":k;b.onclick=()=>{S.rule=k;applyRule();buildAll()};$("rules").appendChild(b)});
+}
+function rows(){
+ $("rows").innerHTML=S.cats.map((c,i)=>'<tr><td><input type="text" data-i="'+i+'" data-k="name" value="'+c.name.replace(/"/g,"&quot;")+'" aria-label="項目名稱"></td><td><select data-i="'+i+'" data-k="type" aria-label="類型">'+Object.keys(TY).map(t=>'<option value="'+t+'"'+(t===c.type?" selected":"")+">"+TY[t]+"</option>").join("")+'</select></td><td><input type="number" min="0" step="100" data-i="'+i+'" data-k="plan" value="'+c.plan+'" aria-label="預計"></td><td><input type="number" min="0" step="100" data-i="'+i+'" data-k="actual" value="'+c.actual+'" aria-label="實際"></td><td class="s" id="st'+i+'"></td><td><button class="x" data-del="'+i+'" type="button" aria-label="刪除">×</button></td></tr>').join("");
+}
+function buildAll(){$("income").value=S.income;$("rate").value=S.rate;$("years").value=S.years;chips();rows();update()}
+function update(){
+ const inc=S.income||0,P={need:sum("need","plan"),want:sum("want","plan"),save:sum("save","plan")};
+ const tot=P.need+P.want+P.save,un=Math.max(0,inc-tot),A=sum(null,"actual"),rem=inc-A;
+ // donut
+ const C=2*Math.PI*60;let off=0,svg='<circle cx="80" cy="80" r="60" fill="none" stroke="var(--un)" stroke-width="22"/>';
+ const base=Math.max(inc,tot)||1;
+ ["need","want","save"].forEach(t=>{const L=P[t]/base*C;svg+='<circle cx="80" cy="80" r="60" fill="none" stroke="'+COL[t]+'" stroke-width="22" stroke-dasharray="'+L+' '+(C-L)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 80 80)"/>';off+=L});
+ svg+='<text x="80" y="76" text-anchor="middle" font-size="12" fill="var(--mute)">已分配</text><text x="80" y="96" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">'+(inc?Math.round(tot/inc*100):0)+'%</text>';
+ $("donut").innerHTML=svg;
+ $("legend").innerHTML=["need","want","save"].map(t=>'<div><span><i style="background:'+COL[t]+'"></i>'+TY[t]+'</span><b>'+money(P[t])+" · "+(inc?Math.round(P[t]/inc*100):0)+"%</b></div>").join("")+'<div><span><i style="background:var(--un)"></i>未分配</span><b>'+money(un)+"</b></div>";
+ $("remain").textContent=money(rem);$("remain").style.color=rem<0?"var(--bad)":"var(--ink)";
+ $("remainsub").textContent=A===0?"還沒填實際花費；月底把真實支出填在「實際」欄。":"收入 "+money(inc)+" − 實際支出 "+money(A);
+ // bars
+ const r=RULES[S.rule];
+ $("rulehint").textContent=r?"目前採用 "+S.rule+"：需要 "+r[0]+"%、想要 "+r[1]+"%、儲蓄 "+r[2]+"%。":"自訂模式不會自動調整，請自己決定比例。";
+ $("bars").innerHTML=["need","want","save"].map((t,i)=>{const pc=inc?P[t]/inc*100:0;return '<div class="lab"><span>'+TY[t]+'</span><b>實際分配 '+pc.toFixed(0)+"%"+(r?"（建議 "+r[i]+"%）":"")+'</b></div><div class="bar"><i style="width:'+Math.min(100,pc)+"%;background:"+COL[t]+'"></i>'+(r?'<u style="left:'+r[i]+'%"></u>':"")+"</div>"}).join("");
+ // alerts
+ const al=[];
+ if(tot>inc)al.push(["bad","預算總和比收入多 "+money(tot-inc)+"，請減少某些項目。"]);
+ else if(un>0)al.push(["","還有 "+money(un)+" 沒有分配，可以多存一些，或留作彈性預備金。"]);
+ else if(inc>0)al.push(["ok","收入已全部分配完，很好！"]);
+ const sp=inc?P.save/inc*100:0;
+ if(inc&&sp<10)al.push(["bad","儲蓄只占 "+sp.toFixed(0)+"%，低於 10%。遇到突發狀況容易吃緊。"]);
+ else if(inc&&sp>=20)al.push(["ok","儲蓄率達 "+sp.toFixed(0)+"%，符合 50/30/20 的建議。"]);
+ S.cats.forEach(c=>{if(c.type!=="save"&&c.actual>c.plan&&c.plan>=0)al.push(["bad","「"+c.name+"」超支 "+money(c.actual-c.plan)+"（預計 "+money(c.plan)+"，實際 "+money(c.actual)+"）。"])});
+ $("alerts").innerHTML=al.map(a=>'<div class="al '+a[0]+'">'+a[1]+"</div>").join("");
+ S.cats.forEach((c,i)=>{const e=$("st"+i);if(!e)return;const d=c.actual-c.plan;
+  if(!c.actual)e.innerHTML='<span class="mute">未填</span>';
+  else if(c.type==="save")e.innerHTML=d>=0?'<span class="fine">達標</span>':'<span class="over">少存 '+money(-d)+"</span>";
+  else e.innerHTML=d>0?'<span class="over">超支 '+money(d)+"</span>":'<span class="fine">剩 '+money(-d)+"</span>"});
+ // FV
+ const pmt=P.save,rr=S.rate/100/12,n=S.years*12,fv=rr===0?pmt*n:pmt*(Math.pow(1+rr,n)-1)/rr,pri=pmt*n;
+ $("o-rate").textContent=S.rate.toFixed(1)+"%";$("o-years").textContent=S.years+" 年";
+ $("f-pmt").textContent=money(pmt)+" / 月";$("f-pri").textContent=money(pri);$("f-fv").textContent=money(fv);
+ $("f-gain").textContent="其中複利收益約 "+money(fv-pri);
+ save();
+}
+$("income").oninput=e=>{S.income=parseFloat(e.target.value)||0;update()};
+$("rate").oninput=e=>{S.rate=parseFloat(e.target.value);update()};
+$("years").oninput=e=>{S.years=parseInt(e.target.value);update()};
+$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i,k=t.dataset.k;if(i===undefined)return;S.cats[i][k]=(k==="name"||k==="type")?t.value:(parseFloat(t.value)||0);if(k==="type"){S.rule=S.rule}update()});
+$("rows").addEventListener("click",e=>{const d=e.target.dataset.del;if(d===undefined)return;S.cats.splice(+d,1);rows();update()});
+$("add").onclick=()=>{S.cats.push({name:"新項目",type:"want",plan:0,actual:0});rows();update()};
+$("theme").onclick=()=>{const d=document.documentElement;d.setAttribute("data-theme",getComputedStyle(d).colorScheme==="dark"?"light":"dark")};
+const sv=load();if(sv){S=sv;buildAll()}else setPreset("上班族");
+</script>
+</body>
+</html>
